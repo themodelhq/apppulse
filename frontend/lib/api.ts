@@ -4,7 +4,7 @@
 // (e.g. "https://x.onrender.com//api/apps"), which FastAPI's router treats
 // as a different, non-existent path and 404s on every request.
 const API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000").replace(/\/+$/, "");
-const WS_BASE = API_BASE.replace(/^http/, "ws");
+   const WS_BASE = API_BASE.replace(/^http/, "ws");
 
 export type Store = "apple_app_store" | "google_play";
 
