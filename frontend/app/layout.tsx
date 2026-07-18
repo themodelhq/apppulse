@@ -9,6 +9,8 @@ const display = Space_Grotesk({ subsets: ["latin"], variable: "--font-display", 
 const body = Inter({ subsets: ["latin"], variable: "--font-body" });
 const mono = IBM_Plex_Mono({ subsets: ["latin"], variable: "--font-mono", weight: ["400", "500"] });
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "AppPulse Analytics",
   description: "Real-time App Store & Google Play intelligence — honestly estimated.",
