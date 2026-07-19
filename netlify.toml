@@ -1,0 +1,49 @@
+# Netlify build configuration for the Next.js frontend.
+#
+# Deploy: in the Netlify dashboard, "Add new site" -> "Import an existing
+# project", pick this repo. Netlify auto-detects Next.js and normally
+# doesn't need this file at all - it's here mainly to (a) point at the
+# `frontend/` subdirectory since this is a monorepo, and (b) pin the Node
+# version Next.js 16 requires.
+#
+# After the first deploy, set these in Site settings -> Environment
+# variables (they must be set BEFORE the build, since NEXT_PUBLIC_* values
+# are baked into the JS bundle at build time - changing them later requires
+# a new deploy, not just a restart):
+#   NEXT_PUBLIC_API_BASE_URL = https://your-backend.onrender.com
+
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20.9.0"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# --- Cache control ---
+# Without this, Netlify's edge CDN can apply its own default caching to the
+# HTML document independently of Next.js's own rendering mode (even with
+# `export const dynamic = "force-dynamic"` set in the app). We hit this
+# directly in production: the CDN kept serving an old cached HTML shell
+# that referenced JS chunk filenames from a previous deploy, after those
+# exact files had already been deleted by newer deploys - a live
+# ChunkLoadError on every page load, confirmed by comparing the stale
+# production URL against a known-good per-deploy preview URL.
+#
+# The fix: explicitly forbid caching the HTML document, while keeping
+# aggressive caching for the actual static assets under /_next/static/*,
+# which are safe to cache forever because their filenames are content
+# hashes - a new build always gets new filenames, so there's no
+# staleness risk there, only performance upside.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
